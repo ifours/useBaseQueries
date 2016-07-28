@@ -1,6 +1,6 @@
 {
   "name": "use-base-queries",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Support for base queries in history",
   "main": "lib/index.js",
   "scripts": {
