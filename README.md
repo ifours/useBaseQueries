@@ -4,7 +4,7 @@ Support for added base queries to each path is provided by the `useBaseQueries` 
 
 ```js
 import { createHistory, useQueries } from 'history';
-import useBaseQueries from 'useBaseQueries';
+import useBaseQueries from 'use-base-queries';
 
 const history = useBaseQueries(useQueries(createHistory))({
   baseQueries() { return { token: '2323423'  } };
