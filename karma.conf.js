@@ -6,6 +6,7 @@ module.exports = (config) => {
     browsers: [ 'Chrome' ],
     frameworks: [ 'mocha' ],
     reporters: [ 'mocha' ],
+    singleRun: true,
 
     files: [
       'tests.webpack.js'
