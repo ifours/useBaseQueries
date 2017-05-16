@@ -1,4 +1,5 @@
 import { parsePath } from 'history/lib/PathUtils';
+import { stringifyQuery } from 'history/lib/LocationUtils';
 
 /**
  * Returns a new createHistory function that may be used to create
@@ -10,6 +11,7 @@ function useBaseQueries(createHistory) {
 
     const { baseQueries } = options;
 
+    // TODO: add support for a path string for all situations
     function addBaseQuery(location, query) {
       if (typeof location === 'string') {
         location = parsePath(location);
@@ -17,11 +19,28 @@ function useBaseQueries(createHistory) {
 
       return {
         ...location,
+
         query: {
           ...baseQueries(),
           ...(query || location.query || {})
         }
       };
+    }
+
+    // Override all read methods with query-aware versions.
+    function getCurrentLocation() {
+      return addBaseQuery(history.getCurrentLocation());
+    }
+
+    function listenBefore(hook) {
+      return history.listenBefore(
+        (location, callback) =>
+          runTransitionHook(hook, addBaseQuery(location), callback)
+      )
+    }
+
+    function listen(listener) {
+      return history.listen(location => listener(addBaseQuery(location)));
     }
 
     // Override all write methods with query-aware versions.
@@ -42,11 +61,16 @@ function useBaseQueries(createHistory) {
     }
 
     function createLocation(location, ...args) {
-      return history.createLocation(addBaseQuery(location), ...args);
+      const newLocation = history.createLocation(addBaseQuery(location), ...args);
+
+      return newLocation;
     }
 
     return {
       ...history,
+      getCurrentLocation,
+      listenBefore,
+      listen,
       push,
       replace,
       createPath,

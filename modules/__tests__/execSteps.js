@@ -1,16 +1,27 @@
-export default function execSteps(steps, done) {
-  let index = 0;
+const execSteps = (steps, history, done) => {
+  let index = 0, unlisten;
 
-  return function() {
-    if (steps.length === 0) {
-      done();
-    } else {
-      try {
-        steps[index++].apply(this, arguments);
-        if (index === steps.length) done();
-      } catch (error) {
-        done(error);
-      }
+  const cleanup = (...args) => {
+    unlisten();
+    done(...args);
+  };
+
+  const execNextStep = (...args) => {
+    try {
+      steps[index++](...args);
+
+      if (index === steps.length) cleanup();
+    } catch (error) {
+      cleanup(error);
     }
   }
-};
+
+  if (steps.length) {
+    unlisten = history.listen(execNextStep);
+    execNextStep(history.getCurrentLocation());
+  } else {
+    done();
+  }
+}
+
+export default execSteps;
